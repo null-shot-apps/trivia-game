@@ -1,84 +1,214 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
-const slogans = [
-  "Turn chats into apps",
-  "Prompt. Ship. Repeat.",
-  "Build anything from a chat",
-  "Ideas → Apps, instantly",
-  "From zero to MVP in minutes",
-  "Your cofounder in the command line",
-  "Draft, iterate, deploy",
-  "Ship faster than you can type",
-  "Design in text, deliver in code",
-  "Dream it. Prompt it. Run it.",
-  "Chat-native app building",
-  "From prompt to product",
-  "One prompt, infinite apps",
-  "Stop scaffolding. Start shipping.",
-  "Prototype at the speed of thought",
-  "Make conversations executable"
+const triviaQuestions = [
+  {
+    question: "What is the capital of France?",
+    options: ["London", "Berlin", "Paris", "Madrid"],
+    correct: 2
+  },
+  {
+    question: "Which planet is known as the Red Planet?",
+    options: ["Venus", "Mars", "Jupiter", "Saturn"],
+    correct: 1
+  },
+  {
+    question: "Who painted the Mona Lisa?",
+    options: ["Vincent van Gogh", "Pablo Picasso", "Leonardo da Vinci", "Michelangelo"],
+    correct: 2
+  },
+  {
+    question: "What is the largest ocean on Earth?",
+    options: ["Atlantic Ocean", "Indian Ocean", "Arctic Ocean", "Pacific Ocean"],
+    correct: 3
+  },
+  {
+    question: "In what year did World War II end?",
+    options: ["1943", "1944", "1945", "1946"],
+    correct: 2
+  },
+  {
+    question: "What is the smallest country in the world?",
+    options: ["Monaco", "Vatican City", "San Marino", "Liechtenstein"],
+    correct: 1
+  },
+  {
+    question: "Which element has the chemical symbol 'Au'?",
+    options: ["Silver", "Gold", "Copper", "Aluminum"],
+    correct: 1
+  },
+  {
+    question: "How many continents are there?",
+    options: ["5", "6", "7", "8"],
+    correct: 2
+  },
+  {
+    question: "Who wrote 'Romeo and Juliet'?",
+    options: ["Charles Dickens", "William Shakespeare", "Jane Austen", "Mark Twain"],
+    correct: 1
+  },
+  {
+    question: "What is the speed of light?",
+    options: ["300,000 km/s", "150,000 km/s", "450,000 km/s", "600,000 km/s"],
+    correct: 0
+  }
 ];
 
-export default function Landing() {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isVisible, setIsVisible] = useState(true);
+export default function TriviaGame() {
+  const [gameStarted, setGameStarted] = useState(false);
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [score, setScore] = useState(0);
+  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
+  const [showResult, setShowResult] = useState(false);
+  const [gameOver, setGameOver] = useState(false);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIsVisible(false);
-      setTimeout(() => {
-        setCurrentIndex((prev) => (prev + 1) % slogans.length);
-        setIsVisible(true);
-      }, 400);
-    }, 2800);
+  const startGame = () => {
+    setGameStarted(true);
+    setCurrentQuestion(0);
+    setScore(0);
+    setSelectedAnswer(null);
+    setShowResult(false);
+    setGameOver(false);
+  };
 
-    return () => clearInterval(interval);
-  }, []);
+  const handleAnswer = (index: number) => {
+    if (showResult) return;
+    
+    setSelectedAnswer(index);
+    setShowResult(true);
+    
+    if (index === triviaQuestions[currentQuestion].correct) {
+      setScore(score + 1);
+    }
+  };
+
+  const nextQuestion = () => {
+    if (currentQuestion < triviaQuestions.length - 1) {
+      setCurrentQuestion(currentQuestion + 1);
+      setSelectedAnswer(null);
+      setShowResult(false);
+    } else {
+      setGameOver(true);
+    }
+  };
+
+  if (!gameStarted) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-600 via-blue-600 to-cyan-500 flex items-center justify-center p-6">
+        <div className="text-center">
+          <h1 className="text-6xl font-bold text-white mb-4">🧠 Trivia Challenge</h1>
+          <p className="text-xl text-white/90 mb-8">Test your knowledge with 10 questions!</p>
+          <button
+            onClick={startGame}
+            className="bg-white text-purple-600 px-8 py-4 rounded-full text-xl font-bold hover:scale-105 transition-transform shadow-lg"
+          >
+            Start Game
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (gameOver) {
+    const percentage = (score / triviaQuestions.length) * 100;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-600 via-blue-600 to-cyan-500 flex items-center justify-center p-6">
+        <div className="bg-white rounded-3xl p-8 max-w-md w-full text-center shadow-2xl">
+          <h2 className="text-4xl font-bold text-gray-800 mb-4">Game Over! 🎉</h2>
+          <div className="text-6xl font-bold text-purple-600 mb-4">
+            {score}/{triviaQuestions.length}
+          </div>
+          <p className="text-xl text-gray-600 mb-6">
+            {percentage >= 80 ? "Amazing! You're a trivia master! 🏆" :
+             percentage >= 60 ? "Great job! Well done! 👏" :
+             percentage >= 40 ? "Not bad! Keep practicing! 💪" :
+             "Keep trying! You'll get better! 📚"}
+          </p>
+          <button
+            onClick={startGame}
+            className="bg-purple-600 text-white px-8 py-3 rounded-full text-lg font-bold hover:bg-purple-700 transition-colors"
+          >
+            Play Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const question = triviaQuestions[currentQuestion];
 
   return (
-    <div className="relative h-[100dvh] w-full overflow-hidden bg-black text-white">
-      {/* Enhanced animated aurora background layers */}
-      <div className="absolute inset-0 bg-aurora-layer-1" />
-      <div className="absolute inset-0 bg-aurora-layer-2" />
-      <div className="absolute inset-0 bg-aurora-layer-3" />
-      
-      {/* Floating particles overlay */}
-      <div className="absolute inset-0 bg-particles" />
-      
-      {/* Main content - centered */}
-      <main className="relative z-10 h-full flex flex-col items-center justify-center px-6">
-        <h1 className="text-center text-[clamp(28px,6vw,64px)] font-medium tracking-tight mb-4">
-          Turn Chats into Apps
-        </h1>
-        
-        {/* Rotating slogans */}
-        <div className="mt-4 h-8 md:h-10 overflow-hidden flex items-center justify-center">
-          <span
-            className={`inline-block text-center text-[clamp(18px,3vw,32px)] font-light transition-all duration-[400ms] ease-in-out ${
-              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'
-            }`}
-          >
-            {slogans[currentIndex]}
-          </span>
+    <div className="min-h-screen bg-gradient-to-br from-purple-600 via-blue-600 to-cyan-500 flex items-center justify-center p-6">
+      <div className="bg-white rounded-3xl p-8 max-w-2xl w-full shadow-2xl">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-6">
+          <div className="text-sm font-semibold text-gray-600">
+            Question {currentQuestion + 1}/{triviaQuestions.length}
+          </div>
+          <div className="text-sm font-semibold text-purple-600">
+            Score: {score}
+          </div>
         </div>
-      </main>
-      
-      {/* Start Prompting arrow pointing left - bottom left */}
-      <div className="absolute left-6 md:left-8 bottom-[5%] z-20 flex items-center gap-3 arrow-point-left">
-        <div className="flex items-center gap-2 text-white/80 font-medium text-sm md:text-base">
-          <svg 
-            className="w-5 h-5 md:w-6 md:h-6 animate-bounce-horizontal" 
-            fill="none" 
-            viewBox="0 0 24 24" 
-            stroke="currentColor"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-          <span>Start prompting</span>
+
+        {/* Progress Bar */}
+        <div className="w-full bg-gray-200 rounded-full h-2 mb-8">
+          <div
+            className="bg-purple-600 h-2 rounded-full transition-all duration-300"
+            style={{ width: `${((currentQuestion + 1) / triviaQuestions.length) * 100}%` }}
+          />
         </div>
+
+        {/* Question */}
+        <h2 className="text-2xl font-bold text-gray-800 mb-8">{question.question}</h2>
+
+        {/* Options */}
+        <div className="space-y-3 mb-8">
+          {question.options.map((option, index) => {
+            const isCorrect = index === question.correct;
+            const isSelected = index === selectedAnswer;
+            
+            let buttonClass = "w-full p-4 rounded-xl text-left font-semibold transition-all ";
+            
+            if (!showResult) {
+              buttonClass += "bg-gray-100 hover:bg-purple-100 text-gray-800 hover:scale-[1.02]";
+            } else {
+              if (isCorrect) {
+                buttonClass += "bg-green-500 text-white";
+              } else if (isSelected && !isCorrect) {
+                buttonClass += "bg-red-500 text-white";
+              } else {
+                buttonClass += "bg-gray-100 text-gray-800";
+              }
+            }
+
+            return (
+              <button
+                key={index}
+                onClick={() => handleAnswer(index)}
+                disabled={showResult}
+                className={buttonClass}
+              >
+                <span className="mr-3">{String.fromCharCode(65 + index)}.</span>
+                {option}
+                {showResult && isCorrect && <span className="float-right">✓</span>}
+                {showResult && isSelected && !isCorrect && <span className="float-right">✗</span>}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Next Button */}
+        {showResult && (
+          <button
+            onClick={nextQuestion}
+            className="w-full bg-purple-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-purple-700 transition-colors"
+          >
+            {currentQuestion < triviaQuestions.length - 1 ? "Next Question →" : "See Results"}
+          </button>
+        )}
       </div>
     </div>
   );
 }
+
